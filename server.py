@@ -1,7 +1,7 @@
 import socket as sock
 import threading as th
 
-# Função para receber dados do cliente
+#  receber dados do cliente
 def receber_dados(sock_conn, ender):
     try:
         # Receber o nome do cliente
@@ -10,7 +10,7 @@ def receber_dados(sock_conn, ender):
         lista_cliente.append(cliente)
         print(f"Conexão com {nome} ({ender} estabelecida)")
 
-        # Notificar todos os clientes sobre o novo usuário
+        # Notificar clientes 
         lista_usuarios = [c['nome'] for c in lista_cliente]
         mensagem_bem_vindo = f"Conectado, {nome}!\nUsuários conectados: {', '.join(lista_usuarios)}"
         broadcast(lista_cliente, mensagem_bem_vindo)
@@ -21,7 +21,7 @@ def receber_dados(sock_conn, ender):
                 raise Exception(f"Mensagem vazia de {nome}.")
             print(f"{nome} >> {mensagem}")
 
-            # Verificar se o comando é /remover
+            # Verificar /remover
             if mensagem.startswith("/remover"):
                 try:
                     # Extrair o nome do usuário a ser removido
@@ -33,24 +33,24 @@ def receber_dados(sock_conn, ender):
                 except ValueError:
                     sock_conn.send("Uso incorreto do comando /remover. Formato: /remover <nome>".encode())
             
-            # Verificar se o comando é /unicast
+            # Verificar  /unicast
             elif mensagem.startswith("/privado"):
                 try:
-                    # Extrair o nome do destinatário e a mensagem
+                    # Extrair destinatário e a mensagem
                     _, nome_destinatario, msg = mensagem.split(" ", 2)
                     unicast(lista_cliente, nome_destinatario, f"{nome} (Privado): {msg}")
                 except ValueError:
                     sock_conn.send("Uso incorreto do comando /privado. Formato: /privado <nome> <mensagem>".encode())
             
             else:
-                # Caso contrário, envia a mensagem para todos os clientes
+                # envia a mensagem para todos os clientes
                 broadcast(lista_cliente, f"{nome}: {mensagem}")
 
     except Exception as e:
         print(f"Erro com o cliente {ender}: {e}")
         remover(cliente, lista_cliente)
 
-# Função para enviar mensagem para todos os clientes
+# enviar mensagem para todos os clientes
 def broadcast(lista_cliente, mensagem):
     for cliente in lista_cliente:
         try:
@@ -58,7 +58,7 @@ def broadcast(lista_cliente, mensagem):
         except:
             remover(cliente, lista_cliente)
 
-# Função para remover um cliente da lista e fechar a conexão
+#  remover um cliente da lista e fechar a conexão
 def remover(cliente, lista_cliente):
     if cliente in lista_cliente:
         lista_cliente.remove(cliente)
@@ -66,13 +66,13 @@ def remover(cliente, lista_cliente):
         print(f"Cliente {cliente['nome']} removido.")
         broadcast(lista_cliente, f"{cliente['nome']} saiu do chat.")
 
-# Função para remover um usuário específico com o comando /remover
+#  remover um usuário específico com o comando /remover
 def remover_usuario_comando(sock_conn, lista_cliente, nome_remover):
     # Verifica se o usuário está na lista de clientes
     for cliente in lista_cliente:
         if cliente['nome'] == nome_remover:
             try:
-                # Enviar notificação de remoção para todos os clientes
+                # Enviar notificação  para todos os clientes
                 mensagem_remocao = f"{nome_remover} foi removido do chat pelo administrador."
                 broadcast(lista_cliente, mensagem_remocao)
 
@@ -87,7 +87,7 @@ def remover_usuario_comando(sock_conn, lista_cliente, nome_remover):
     # Se o cliente não for encontrado
     sock_conn.send(f"Cliente {nome_remover} não encontrado.".encode())
 
-# Função para enviar mensagem para um cliente específico (unicast)
+# enviar mensagem para um cliente específico (unicast)
 def unicast(lista_cliente, nome_destinatario, mensagem):
     for cliente in lista_cliente:
         if cliente['nome'] == nome_destinatario:
@@ -100,7 +100,7 @@ def unicast(lista_cliente, nome_destinatario, mensagem):
                 return
     print(f"Cliente {nome_destinatario} não encontrado para unicast.")
 
-# Configuração do servidor
+
 HOST = '127.0.0.1'  # Endereço IP do servidor
 PORTA = 8888             # Porta do servidor
 lista_cliente = []
@@ -111,7 +111,7 @@ socket_server.bind((HOST, PORTA))
 socket_server.listen()
 print(f"Servidor rodando em {HOST}:{PORTA}...")
 
-# Loop principal para receber conexões de clientes
+# receber conexões de clientes
 while True:
     try:
         sock_conn, ender = socket_server.accept()
